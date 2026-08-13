@@ -26,6 +26,21 @@ const word = {
 // the hero headline so the page's first moment feels composed, not static.
 export function StaggeredText({ text, className, style, delayStart = 0 }: StaggeredTextProps): ReactNode {
   const words = text.split(" ");
+  const children: ReactNode[] = [];
+  words.forEach((w, i) => {
+    children.push(
+      <motion.span key={`w-${i}`} variants={word} style={{ display: "inline-block" }}>
+        {w}
+      </motion.span>
+    );
+    // A plain space as a direct sibling text node — NOT nested inside any
+    // inline-block box. Whitespace at the edge of an inline-block box gets
+    // visually collapsed by the browser, which was silently running every
+    // word together; a bare space between two inline-block siblings in
+    // normal flow renders as a real, visible gap.
+    if (i < words.length - 1) children.push(" ");
+  });
+
   return (
     <motion.span
       variants={container(delayStart)}
@@ -34,11 +49,7 @@ export function StaggeredText({ text, className, style, delayStart = 0 }: Stagge
       className={className}
       style={{ ...style, display: "inline-block" }}
     >
-      {words.map((w, i) => (
-        <motion.span key={i} variants={word} style={{ display: "inline-block", marginRight: "0.25em" }}>
-          {w}
-        </motion.span>
-      ))}
+      {children}
     </motion.span>
   );
 }
